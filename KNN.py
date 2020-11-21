@@ -89,7 +89,7 @@ grafic("datasetKNN.txt", "dataset", 0, 200)
 grafic("KNN_train.txt", "train", 350, 0)
 grafic("KNN_test.txt", "test", 350, 350)
 
-canvas.create_text(300, 680, text="Percentage of errors: "+str(error/(n-n//5)))
+canvas.create_text(300, 680, text="Percentage of errors: "+str(100*error/(n-n//5))+"%")
 
 canvas.pack()
 window.mainloop()
