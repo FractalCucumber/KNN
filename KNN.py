@@ -1,85 +1,96 @@
 import random
+import tkinter
+
 
 with open("datasetKNN.txt", "r") as f:
-    dataset = []
+    dataset = dict()
+
     for line in f:
-        dataset += [list(map(int, line.split()))]
-    n = len(dataset)
+        line = line.split()
+        xy = tuple(map(float, line[:-1:]))
+        class_xy = line[-1]
+
+        dataset[xy] = class_xy
+
+n = len(dataset)
+k = 3
+
+with open("KNN_train.txt", "w") as f:
+    train_xy = random.sample(dataset.keys(), n//5)
+    for i in train_xy:
+        f.write(" ".join(map(str, i))+" "+dataset[i]+"\n")
+
+test = dict()
 
 
-train = [["-" for j in range(n)] for i in range(n)]
+nns = dict()
 
-for i in range(n**2//5):
-    flag = False
-    while not flag:
-        x = random.randint(0, n-1)
-        y = random.randint(0, n-1)
-        if train[x][y] == '-':
-            train[x][y] = dataset[x][y]
-            flag = True
+for xy in dataset.keys():
+    if not xy in train_xy:
+        x = xy[0]
+        y = xy[1]
 
-test = [[0 for j in range(n)] for i in range(n)]
+        nns[xy] = list(map(lambda t: t[0], sorted([(i, (i[0]-x)**2 + (i[1]-y)**2) for i in train_xy], key = lambda j: j[1])[:k:]))
 
-for i in range(n):
-    for j in range(n):
-        if train[i][j] != '-':
-            test[i][j] = train[i][j]
-        else:
-            nns = []
-            k = 3
-            k1 = k
-            t = 1
-            while k1 > 0:
-                for x in range(-t, t+1):
-                    for y in (-t, t):
-                        if i+x >= 0 and i+x <= n-1 and j+y >= 0 and j+y <= n-1:
-                            if train[i+x][j+y] != '-':
-                                nns += [train[i+x][j+y]]
-                                k1 -= 1
+        c = dict()
+        for i in nns[xy]:
+            if dataset[i] not in c:
+                c[dataset[i]] = 1
+            else:
+                c[dataset[i]] += 1
+        max = 0
+        for i in c:
+            if c[i] > max:
+                class_xy = i
 
-                for y in range(-t+1, t):
-                    for x in (-t, t):
-                        if i+x >= 0 and i+x <= n-1 and j+y >= 0 and j+y <= n-1:
-                            if train[i+x][j+y] != '-':
-                                nns += [train[i+x][j+y]]
-                                k1 -= 1
-                t += 1
-
-            while len(nns) > k:
-                nns.pop()
-
-            test[i][j] = sum(nns)//k
+        test[xy] = class_xy
 
 with open("KNN_test.txt", "w") as f:
-    for i in range(n):
-        for j in range(n):
-            f.write(str(test[i][j]) + ' ')
-        f.write('\n')
+    for i in test:
+        f.write(" ".join(map(str, i))+" "+test[i]+"\n")
 
-errors = [[dataset[i][j]-test[i][j] for j in range(n)] for i in range(n) ]
 
-with open("KNN_errors.txt", "w") as f:
-    for i in range(n):
-        for j in range(n):
-            f.write(str(errors[i][j]) + ' ')
-        f.write('\n')
+error = 0
+for i in test.keys():
+    if test[i] != dataset[i]:
+        error += 1
 
 
 
 
 
 
+window = tkinter.Tk()
+
+canvas = tkinter.Canvas(window, width=700, height=700, bg="white", cursor="pencil")
 
 
+def grafic(s, sign, dx, dy):
+    colors = {"class1": "blue", "class2": "green", "class3": "purple"}
+    with open(s, "r") as f:
+        dataset = dict()
 
+        for line in f:
+            line = line.split()
+            xy = tuple(map(float, line[:-1:]))
+            class_xy = line[-1]
 
+            dataset[xy] = class_xy
 
+    for i in dataset:
+        x = i[0]*3 + dx
+        y = i[1]*3 + dy
+        color = colors[dataset[i]]
+        canvas.create_oval(x, y, x+5, y+5, outline=color, fill=color)
 
+    canvas.create_text(dx+150, dy+320, text=sign)
 
+grafic("datasetKNN.txt", "dataset", 0, 200)
+grafic("KNN_train.txt", "train", 350, 0)
+grafic("KNN_test.txt", "test", 350, 350)
 
+canvas.create_text(300, 680, text="Percentage of errors: "+str(error/(n-n//5)))
 
-
-
-
-
+canvas.pack()
+window.mainloop()
 
