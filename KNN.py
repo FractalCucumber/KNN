@@ -30,7 +30,7 @@ for xy in dataset.keys():
         x = xy[0]
         y = xy[1]
 
-        nns[xy] = list(map(lambda t: t[0], sorted([(i, (i[0]-x)**2 + (i[1]-y)**2) for i in train_xy], key = lambda j: j[1])[:k:]))
+        nns[xy] = list(map(lambda t: t[0], sorted([(i, (i[0]-x)**2 + (i[1]-y)**2) for i in train_xy], key=lambda j: j[1])[:k:]))
 
         c = dict()
         for i in nns[xy]:
@@ -65,7 +65,7 @@ window = tkinter.Tk()
 canvas = tkinter.Canvas(window, width=700, height=700, bg="white", cursor="pencil")
 
 
-def grafic(s, sign, dx, dy):
+def plot(s, sign, dx, dy):
     colors = {"class1": "blue", "class2": "green", "class3": "purple"}
     with open(s, "r") as f:
         dataset = dict()
@@ -85,9 +85,9 @@ def grafic(s, sign, dx, dy):
 
     canvas.create_text(dx+150, dy+320, text=sign)
 
-grafic("datasetKNN.txt", "dataset", 0, 200)
-grafic("KNN_train.txt", "train", 350, 0)
-grafic("KNN_test.txt", "test", 350, 350)
+plot("datasetKNN.txt", "dataset", 0, 200)
+plot("KNN_train.txt", "train", 350, 0)
+plot("KNN_test.txt", "test", 350, 350)
 
 canvas.create_text(300, 680, text="Percentage of errors: "+str(100*error/(n-n//5))+"%")
 
