@@ -1,8 +1,9 @@
 import random
 import tkinter
 
+input_file = "datasetKNN3.txt"
 
-with open("datasetKNN.txt", "r") as f:
+with open(input_file, "r") as f:
     dataset = dict()
 
     for line in f:
@@ -38,10 +39,15 @@ for xy in dataset.keys():
                 c[dataset[i]] = 1
             else:
                 c[dataset[i]] += 1
-        max = 0
+
+        p = k*random.random()
+        pc = 0
+
         for i in c:
-            if c[i] > max:
+            pc += c[i]
+            if p <= pc:
                 class_xy = i
+                break
 
         test[xy] = class_xy
 
@@ -66,7 +72,7 @@ canvas = tkinter.Canvas(window, width=700, height=700, bg="white", cursor="penci
 
 
 def plot(s, sign, dx, dy):
-    colors = {"class1": "blue", "class2": "green", "class3": "purple"}
+    colors = {"class1": "khaki1", "class2": "blue", "class3": "aquamarine4", "class4": "MediumPurple1", "class5": "seashell3"}
     with open(s, "r") as f:
         dataset = dict()
 
@@ -81,11 +87,11 @@ def plot(s, sign, dx, dy):
         x = i[0]*3 + dx
         y = i[1]*3 + dy
         color = colors[dataset[i]]
-        canvas.create_oval(x, y, x+5, y+5, outline=color, fill=color)
+        canvas.create_oval(x, y, x+3, y+3, outline=color, fill=color)
 
     canvas.create_text(dx+150, dy+320, text=sign)
 
-plot("datasetKNN.txt", "dataset", 0, 200)
+plot(input_file, "dataset", 0, 200)
 plot("KNN_train.txt", "train", 350, 0)
 plot("KNN_test.txt", "test", 350, 350)
 
